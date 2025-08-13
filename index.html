@@ -330,7 +330,11 @@ function showEnding(){
   floatBalloons(10);
 
   // play gentle bg chord
-  softChord();
+  // softChord();
+
+  // === Pemutar musik ulang tahun ===
+  const audio = new Audio('Sal_Priadi_-_Serta_Mulia__Official_Lyric_Video_(128k).m4a');
+  audio.play();
 
   // add pop when each photo becomes visible (using the animation delays)
   const imgs = [...document.querySelectorAll('#gallery img')];
