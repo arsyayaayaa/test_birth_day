@@ -327,10 +327,15 @@ function showEnding(){
 
   // spawn confetti + balloons
 
-  // Ganti chord bawaan dengan musik Sal Priadi mulai dari detik ke-40
+  // Ganti chord bawaan dengan musik Sal Priadi mulai dari detik ke-40 dan berhenti di detik ke-78
   const audio = document.getElementById('bgMusic');
   audio.currentTime = 40; // mulai dari detik ke-40
   audio.play();
+  audio.addEventListener('timeupdate', () => {
+    if (audio.currentTime >= 78) {
+      audio.pause();
+    }
+  });
 
   confettiBurst(120);
   floatBalloons(10);
