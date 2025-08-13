@@ -135,6 +135,7 @@
   <div class="balloons" id="balloons"></div>
 </div>
 
+
 <script>
 /* =======================
    S I M P L E  M A R I O
@@ -161,9 +162,7 @@ const GRAV = 0.55, FRICTION = 0.8, MOVE = 0.9, JUMP = 12.4;
 const player = {x:80, y:H-140, w:28, h:34, vx:0, vy:0, onGround:false, coins:0};
 
 const platforms = [
-  // ground strips
   {x:0,y:H-80,w:1800,h:80, color:'#55aa55'},
-  // small birthday blocks (like gifts)
   {x:260,y:H-160,w:80,h:20, color:'#ffc6e5'},
   {x:360,y:H-210,w:90,h:20, color:'#c6f1ff'},
   {x:500,y:H-260,w:110,h:20, color:'#fff0a8'},
@@ -184,14 +183,11 @@ const goal = {x:1540, y:H-160, w:26, h:120};
 
 let camX = 0, running = true;
 
-/* Draw helpers */
 function rect(x,y,w,h, color){
   ctx.fillStyle=color; ctx.fillRect(x - camX, y, w, h);
 }
 function drawFlag(){
-  // pole
   rect(goal.x, goal.y, goal.w, goal.h, '#444');
-  // flag cloth
   ctx.fillStyle = '#ff6ec7';
   ctx.beginPath();
   ctx.moveTo(goal.x - camX + goal.w, goal.y);
@@ -200,22 +196,18 @@ function drawFlag(){
   ctx.closePath(); ctx.fill();
 }
 
-/* Physics + collisions */
 function aabb(a,b){
   return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
 }
 function update(){
-  // input
   if(keys.left) player.vx -= MOVE;
   if(keys.right) player.vx += MOVE;
-  // jump
   if(keys.up && player.onGround){
     player.vy = -JUMP; player.onGround=false;
   }
   player.vy += GRAV;
   player.vx *= 0.92;
 
-  // move X
   player.x += player.vx;
   for(const p of platforms){
     if(aabb(player, p)){
@@ -224,25 +216,22 @@ function update(){
       player.vx = 0;
     }
   }
-  // move Y
   player.y += player.vy;
   player.onGround = false;
   for(const p of platforms){
     if(aabb(player, p)){
-      if(player.vy > 0){ // falling onto
+      if(player.vy > 0){
         player.y = p.y - player.h;
         player.vy = 0; player.onGround = true;
-      }else if(player.vy < 0){ // hit head
+      }else if(player.vy < 0){
         player.y = p.y + p.h; player.vy = 0;
       }
     }
   }
-  // ground
   if(player.y + player.h > H-80){
     player.y = H-80 - player.h; player.vy = 0; player.onGround = true;
   }
 
-  // coins
   for(const c of coins){
     if(!c.got){
       const dx = player.x + player.w/2 - c.x;
@@ -255,29 +244,27 @@ function update(){
     }
   }
 
-  // camera
   camX = Math.max(0, Math.min(player.x - W*0.35, 900));
 
-  // goal reached?
   if(aabb(player, goal)){
-    win();
+    if(player.coins === coins.length){
+      win();
+    } else {
+      alert("Kumpulkan semua koin dulu baru ke bendera cantiikk! 💰");
+      player.x -= 20;
+    }
   }
 }
 
 function render(){
-  // sky already in canvas bg; draw far cakes/props
   ctx.clearRect(0,0,W,H);
-
-  // decorative birthday banner
   ctx.fillStyle='#ffe066';
   ctx.fillRect(40 - camX, 60, 280, 14);
   ctx.fillStyle='#000'; ctx.font="14px 'Press Start 2P'";
   ctx.fillText("HAPPY BIRTHDAY MAP", 50 - camX, 72);
 
-  // platforms
   for(const p of platforms) rect(p.x, p.y, p.w, p.h, p.color);
 
-  // coins
   for(const co of coins){
     if(co.got) continue;
     const x = co.x - camX, y = co.y;
@@ -286,12 +273,9 @@ function render(){
     ctx.strokeStyle='#b48b00'; ctx.lineWidth=2; ctx.stroke();
   }
 
-  // goal flag
   drawFlag();
 
-  // player (mario-ish square)
   rect(player.x, player.y, player.w, player.h, '#ff4d4d');
-  // eyes
   ctx.fillStyle='#fff';
   ctx.fillRect(player.x - camX + 6, player.y + 8, 6, 6);
   ctx.fillRect(player.x - camX + 16, player.y + 8, 6, 6);
@@ -307,12 +291,8 @@ function loop(){
 }
 loop();
 
-/* =======================
-   W I N   &   E N D I N G
-   ======================= */
 function win(){
   running = false;
-  // fade-out game quickly then show ending
   document.body.style.transition = 'background .8s';
   document.body.style.background = 'linear-gradient(#0d0d12, #08080c)';
   setTimeout(showEnding, 400);
@@ -321,29 +301,11 @@ function win(){
 function showEnding(){
   document.getElementById('gameWrap').classList.add('hidden');
   document.querySelector('.btnTip').classList.add('hidden');
-
   const ending = document.getElementById('ending');
   ending.style.display = 'flex';
-
-  // spawn confetti + balloons
-
-  // Ganti chord bawaan dengan musik Sal Priadi mulai dari detik ke-40 dan berhenti di detik ke-78
-  const audio = document.getElementById('bgMusic');
-  audio.currentTime = 40; // mulai dari detik ke-40
-  audio.play();
-  audio.addEventListener('timeupdate', () => {
-    if (audio.currentTime >= 78) {
-      audio.pause();
-    }
-  });
-
   confettiBurst(120);
   floatBalloons(10);
-
-  // play gentle bg chord
-  // softChord();
-
-  // add pop when each photo becomes visible (using the animation delays)
+  playBirthdaySong();
   const imgs = [...document.querySelectorAll('#gallery img')];
   imgs.forEach((img, i)=>{
     const delay = parseFloat((img.style.animationDelay || '0s').replace('s','')) * 1000;
@@ -351,7 +313,19 @@ function showEnding(){
   });
 }
 
-/* Confetti generator */
+function playBirthdaySong(){
+  const audio = new Audio("Sal_Priadi_-_Serta_Mulia__Official_Lyric_Video_(128k).m4a");
+  audio.currentTime = 40;
+  audio.play();
+  const stopTime = 78;
+  const checker = setInterval(()=>{
+    if(audio.currentTime >= stopTime){
+      audio.pause();
+      clearInterval(checker);
+    }
+  }, 500);
+}
+
 function confettiBurst(n=120){
   const wrap = document.getElementById('confetti');
   const colors=['#ff6ec7','#6ecbff','#ffe066','#7CFF6E','#ffffff'];
@@ -363,12 +337,10 @@ function confettiBurst(n=120){
     s.style.setProperty('--dur', (4+Math.random()*4)+'s');
     s.style.animationDelay = (Math.random()*2)+'s';
     wrap.appendChild(s);
-    // auto remove later
     setTimeout(()=>s.remove(), 9000);
   }
 }
 
-/* Balloons */
 function floatBalloons(n=8){
   const b = document.getElementById('balloons');
   const balls=['#ff6ec7','#6ecbff','#ffe066','#7CFF6E'];
@@ -383,9 +355,7 @@ function floatBalloons(n=8){
   }
 }
 
-/* --------------- AUDIO (WebAudio, kecil & ringan) --------------- */
 const AC = new (window.AudioContext || window.webkitAudioContext)();
-
 function pop(){
   const t = AC.currentTime;
   const o = AC.createOscillator();
@@ -397,7 +367,7 @@ function pop(){
   o.connect(g).connect(AC.destination);
   o.start(t); o.stop(t+.15);
 }
-function smallPop(){ // for coins
+function smallPop(){
   const t = AC.currentTime;
   const o = AC.createOscillator();
   const g = AC.createGain();
@@ -407,24 +377,7 @@ function smallPop(){ // for coins
   g.gain.exponentialRampToValueAtTime(0.001, t+.1);
   o.connect(g).connect(AC.destination); o.start(t); o.stop(t+.12);
 }
-function softChord(){
-  const t0 = AC.currentTime + .05;
-  const freqs = [261.63, 329.63, 392.00]; // C major
-  freqs.forEach((f,i)=>{
-    const o = AC.createOscillator();
-    const g = AC.createGain();
-    o.type='sine'; o.frequency.value=f;
-    g.gain.value=0.0001;
-    o.connect(g).connect(AC.destination);
-    o.start(t0 + i*0.02);
-    // fade in then out
-    g.gain.exponentialRampToValueAtTime(0.12, t0+.3+i*0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0+3.2);
-    o.stop(t0+3.3);
-  });
-}
 </script>
-<audio id="bgMusic" src="Sal_Priadi_-_Serta_Mulia__Official_Lyric_Video_(128k).m4a"></audio>
 
 </body>
 </html>
