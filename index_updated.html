@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Happy Birthday – Baiq Ila Karunia 🎉</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg: #121212;
+    --pink:#ff6ec7;
+    --yellow:#ffe066;
+    --blue:#6ecbff;
+    --green:#7CFF6E;
+    --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:linear-gradient(#151520,#0f0f15);
+    color:var(--white); font-family:'Press Start 2P', cursive;
+    overflow:hidden;
+  }
+
+  /* ---------- GAME ---------- */
+  #hud{position:fixed; left:16px; top:12px; font-size:12px; opacity:.9}
+  #gameWrap{display:flex; align-items:center; justify-content:center; height:100vh;}
+  canvas{image-rendering:pixelated; background:
+    linear-gradient(#87CEEB 60%, #55aa55 60%);
+    border:4px solid #222; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,.45);
+  }
+  .btnTip{position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
+    font-size:11px; opacity:.9; background:rgba(0,0,0,.35); padding:8px 10px; border-radius:8px}
+
+  /* ---------- ENDING ---------- */
+  #ending{position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:24px}
+  .ending-card{
+    width:min(980px, 92vw); max-height:92vh; overflow:auto;
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    border:2px solid rgba(255,255,255,.2);
+    border-radius:22px; padding:28px 22px 30px; text-align:center;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+  .big-title{font-size:22px; letter-spacing:1px; margin:6px 0 12px; color:var(--yellow); text-shadow:0 2px 0 #000}
+  .name{font-size:18px; color:var(--pink); margin:0 0 12px}
+  .wish{font-size:12px; line-height:1.9; margin:0 auto 18px; max-width:720px; color:#f2f2f2}
+
+  .photo-gallery{
+    display:flex; flex-wrap:wrap; justify-content:center;
+    gap:12px; margin-top:10px;
+  }
+  .photo-gallery img{
+    width:170px; max-width:44vw; aspect-ratio:3/4; object-fit:cover;
+    image-rendering:auto; border-radius:14px; border:2px solid rgba(255,255,255,.35);
+    box-shadow:0 8px 24px rgba(0,0,0,.35);
+    opacity:0; transform: translateY(18px) scale(.94);
+    animation: photoIn .9s forwards cubic-bezier(.17,.9,.28,1.15);
+  }
+  @keyframes photoIn{
+    to{opacity:1; transform: translateY(0) scale(1);}
+  }
+
+  /* Confetti */
+  .confetti{position:fixed; inset:0; pointer-events:none; overflow:hidden}
+  .confetti span{
+    position:absolute; top:-10vh; width:10px; height:14px; border-radius:3px; opacity:.9;
+    animation: fall var(--dur) linear infinite; transform: rotate(0deg);
+  }
+  @keyframes fall{
+    to{ transform: translateY(110vh) rotate(360deg); }
+  }
+
+  /* Balloons */
+  .balloons{position:fixed; inset:0; pointer-events:none}
+  .balloons .b{
+    position:absolute; bottom:-20vh; width:36px; height:46px; border-radius:50% 50% 48% 52%/60% 60% 40% 40%;
+    background: var(--ball, #ff6ec7); opacity:.85; box-shadow: inset -6px -10px 0 rgba(0,0,0,.15);
+    animation: floatUp var(--bdur) ease-in infinite;
+  }
+  .balloons .b:after{ /* string */
+    content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:-28px; width:2px; height:28px;
+    background: rgba(255,255,255,.5);
+  }
+  @keyframes floatUp{ 
+    0%{ transform: translateY(0) }
+    100%{ transform: translateY(-130vh) }
+  }
+
+  /* small helpers */
+  .hidden{display:none}
+  .cta{margin-top:14px; font-size:11px; color:#ddd}
+  a.btn{
+    display:inline-block; margin-top:10px; padding:10px 12px; font-size:11px;
+    color:#111; background:var(--yellow); border-radius:10px; text-decoration:none
+  }
+</style>
+</head>
+<body>
+
+<!-- HUD kecil -->
+<div id="hud">🎂 Baiq Birthday Map — <span id="coins">Coins: 0</span></div>
+
+<!-- Game -->
+<div id="gameWrap">
+  <canvas id="gameCanvas" width="960" height="540"></canvas>
+</div>
+<div class="btnTip">Controls: ← → untuk bergerak • Spasi/↑ untuk lompat</div>
+
+<!-- Ending Scene -->
+<div id="ending">
+  <div class="ending-card">
+    <div class="big-title">🎉 Selamat Ulang Tahun 🎉</div>
+    <div class="name">Baiq Ila Karunia</div>
+    <p class="wish">
+      Semoga selalu sehat, dilancarkan semua urusan, dan setiap langkahmu
+      dipenuhi rasa syukur serta kebahagiaan. Terima kasih sudah hebat sampai sejauh ini! 💖
+    </p>
+
+    <!-- GANTI src di bawah sesuai nama file fotomu di folder /images -->
+    <div class="photo-gallery" id="gallery">
+      <img src="IMG-20241121-WA0001.jpg" style="animation-delay:.20s">
+      <img src="IMG-20241121-WA0000.jpg" style="animation-delay:.60s">
+      <img src="IMG_20250726_100346.jpg"   style="animation-delay:1.00s">
+      <img src="IMG-20250324-WA0016.jpg"   style="animation-delay:1.40s">
+      <img src="IMG-20250503-WA0005.jpg"   style="animation-delay:1.80s">
+    </div>
+
+    <div class="cta">Tekan tombol di bawah untuk main lagi</div>
+    <a class="btn" href="" onclick="location.reload();return false;">Main Ulang</a>
+  </div>
+
+  <!-- dekor -->
+  <div class="confetti" id="confetti"></div>
+  <div class="balloons" id="balloons"></div>
+</div>
+
+
+<script>
+/* =======================
+   S I M P L E  M A R I O
+   ======================= */
+
+const c = document.getElementById('gameCanvas');
+const ctx = c.getContext('2d');
+const W = c.width, H = c.height;
+
+let keys = {left:false, right:false, up:false};
+addEventListener('keydown',e=>{
+  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=true;
+  if(['ArrowRight','d','D'].includes(e.key)) keys.right=true;
+  if(['ArrowUp','w','W',' '].includes(e.key)){ keys.up=true; e.preventDefault(); }
+});
+addEventListener('keyup',e=>{
+  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=false;
+  if(['ArrowRight','d','D'].includes(e.key)) keys.right=false;
+  if(['ArrowUp','w','W',' '].includes(e.key)) keys.up=false;
+});
+
+const GRAV = 0.55, FRICTION = 0.8, MOVE = 0.9, JUMP = 12.4;
+
+const player = {x:80, y:H-140, w:28, h:34, vx:0, vy:0, onGround:false, coins:0};
+
+const platforms = [
+  {x:0,y:H-80,w:1800,h:80, color:'#55aa55'},
+  {x:260,y:H-160,w:80,h:20, color:'#ffc6e5'},
+  {x:360,y:H-210,w:90,h:20, color:'#c6f1ff'},
+  {x:500,y:H-260,w:110,h:20, color:'#fff0a8'},
+  {x:680,y:H-210,w:110,h:20, color:'#c6ffd1'},
+  {x:860,y:H-260,w:110,h:20, color:'#ffdada'},
+  {x:1060,y:H-210,w:130,h:20, color:'#d6eaff'},
+  {x:1260,y:H-260,w:120,h:20, color:'#fff0a8'},
+];
+
+const coins = [
+  {x:300,y:H-190, r:8, got:false},
+  {x:540,y:H-290, r:8, got:false},
+  {x:740,y:H-240, r:8, got:false},
+  {x:1120,y:H-240, r:8, got:false},
+];
+
+const goal = {x:1540, y:H-160, w:26, h:120};
+
+let camX = 0, running = true;
+
+function rect(x,y,w,h, color){
+  ctx.fillStyle=color; ctx.fillRect(x - camX, y, w, h);
+}
+function drawFlag(){
+  rect(goal.x, goal.y, goal.w, goal.h, '#444');
+  ctx.fillStyle = '#ff6ec7';
+  ctx.beginPath();
+  ctx.moveTo(goal.x - camX + goal.w, goal.y);
+  ctx.lineTo(goal.x - camX + goal.w + 60, goal.y + 18);
+  ctx.lineTo(goal.x - camX + goal.w, goal.y + 36);
+  ctx.closePath(); ctx.fill();
+}
+
+function aabb(a,b){
+  return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+}
+function update(){
+  if(keys.left) player.vx -= MOVE;
+  if(keys.right) player.vx += MOVE;
+  if(keys.up && player.onGround){
+    player.vy = -JUMP; player.onGround=false;
+  }
+  player.vy += GRAV;
+  player.vx *= 0.92;
+
+  player.x += player.vx;
+  for(const p of platforms){
+    if(aabb(player, p)){
+      if(player.vx > 0) player.x = p.x - player.w;
+      else if(player.vx < 0) player.x = p.x + p.w;
+      player.vx = 0;
+    }
+  }
+  player.y += player.vy;
+  player.onGround = false;
+  for(const p of platforms){
+    if(aabb(player, p)){
+      if(player.vy > 0){
+        player.y = p.y - player.h;
+        player.vy = 0; player.onGround = true;
+      }else if(player.vy < 0){
+        player.y = p.y + p.h; player.vy = 0;
+      }
+    }
+  }
+  if(player.y + player.h > H-80){
+    player.y = H-80 - player.h; player.vy = 0; player.onGround = true;
+  }
+
+  for(const c of coins){
+    if(!c.got){
+      const dx = player.x + player.w/2 - c.x;
+      const dy = player.y + player.h/2 - c.y;
+      if(dx*dx + dy*dy < (c.r+14)*(c.r+14)){
+        c.got = true; player.coins++;
+        document.getElementById('coins').textContent = 'Coins: ' + player.coins;
+        smallPop();
+      }
+    }
+  }
+
+  camX = Math.max(0, Math.min(player.x - W*0.35, 900));
+
+  if(aabb(player, goal)){
+    if(player.coins === coins.length){
+      win();
+    } else {
+      alert("Kumpulkan semua koin dulu baru ke bendera! 💰");
+      player.x -= 20;
+    }
+  }
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#ffe066';
+  ctx.fillRect(40 - camX, 60, 280, 14);
+  ctx.fillStyle='#000'; ctx.font="14px 'Press Start 2P'";
+  ctx.fillText("HAPPY BIRTHDAY MAP", 50 - camX, 72);
+
+  for(const p of platforms) rect(p.x, p.y, p.w, p.h, p.color);
+
+  for(const co of coins){
+    if(co.got) continue;
+    const x = co.x - camX, y = co.y;
+    ctx.fillStyle='#ffde59';
+    ctx.beginPath(); ctx.arc(x,y,co.r,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#b48b00'; ctx.lineWidth=2; ctx.stroke();
+  }
+
+  drawFlag();
+
+  rect(player.x, player.y, player.w, player.h, '#ff4d4d');
+  ctx.fillStyle='#fff';
+  ctx.fillRect(player.x - camX + 6, player.y + 8, 6, 6);
+  ctx.fillRect(player.x - camX + 16, player.y + 8, 6, 6);
+  ctx.fillStyle='#111';
+  ctx.fillRect(player.x - camX + 8, player.y + 10, 3, 3);
+  ctx.fillRect(player.x - camX + 18, player.y + 10, 3, 3);
+}
+
+function loop(){
+  if(!running) return;
+  update(); render();
+  requestAnimationFrame(loop);
+}
+loop();
+
+function win(){
+  running = false;
+  document.body.style.transition = 'background .8s';
+  document.body.style.background = 'linear-gradient(#0d0d12, #08080c)';
+  setTimeout(showEnding, 400);
+}
+
+function showEnding(){
+  document.getElementById('gameWrap').classList.add('hidden');
+  document.querySelector('.btnTip').classList.add('hidden');
+  const ending = document.getElementById('ending');
+  ending.style.display = 'flex';
+  confettiBurst(120);
+  floatBalloons(10);
+  playBirthdaySong();
+  const imgs = [...document.querySelectorAll('#gallery img')];
+  imgs.forEach((img, i)=>{
+    const delay = parseFloat((img.style.animationDelay || '0s').replace('s','')) * 1000;
+    setTimeout(()=> pop(), delay + 720);
+  });
+}
+
+function playBirthdaySong(){
+  const audio = new Audio("Sal_Priadi_-_Serta_Mulia__Official_Lyric_Video_(128k).m4a");
+  audio.currentTime = 40;
+  audio.play();
+  const stopTime = 78;
+  const checker = setInterval(()=>{
+    if(audio.currentTime >= stopTime){
+      audio.pause();
+      clearInterval(checker);
+    }
+  }, 500);
+}
+
+function confettiBurst(n=120){
+  const wrap = document.getElementById('confetti');
+  const colors=['#ff6ec7','#6ecbff','#ffe066','#7CFF6E','#ffffff'];
+  for(let i=0;i<n;i++){
+    const s = document.createElement('span');
+    s.style.left = Math.random()*100+'vw';
+    s.style.background = colors[i%colors.length];
+    s.style.transform = `translateY(0) rotate(${Math.random()*360}deg)`;
+    s.style.setProperty('--dur', (4+Math.random()*4)+'s');
+    s.style.animationDelay = (Math.random()*2)+'s';
+    wrap.appendChild(s);
+    setTimeout(()=>s.remove(), 9000);
+  }
+}
+
+function floatBalloons(n=8){
+  const b = document.getElementById('balloons');
+  const balls=['#ff6ec7','#6ecbff','#ffe066','#7CFF6E'];
+  for(let i=0;i<n;i++){
+    const el = document.createElement('div');
+    el.className='b';
+    el.style.left = (5 + Math.random()*90)+'vw';
+    el.style.setProperty('--bdur', (8+Math.random()*8)+'s');
+    el.style.setProperty('--ball', balls[i%balls.length]);
+    b.appendChild(el);
+    setTimeout(()=>el.remove(), 16000);
+  }
+}
+
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function pop(){
+  const t = AC.currentTime;
+  const o = AC.createOscillator();
+  const g = AC.createGain();
+  o.type='square'; o.frequency.setValueAtTime(880, t);
+  o.frequency.exponentialRampToValueAtTime(120, t+.12);
+  g.gain.setValueAtTime(0.2, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+.13);
+  o.connect(g).connect(AC.destination);
+  o.start(t); o.stop(t+.15);
+}
+function smallPop(){
+  const t = AC.currentTime;
+  const o = AC.createOscillator();
+  const g = AC.createGain();
+  o.type='triangle'; o.frequency.setValueAtTime(1200, t);
+  o.frequency.exponentialRampToValueAtTime(500, t+.09);
+  g.gain.setValueAtTime(0.18, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+.1);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+.12);
+}
+</script>
+
+</body>
+</html>
