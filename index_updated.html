@@ -22,109 +22,41 @@
     overflow:hidden;
   }
 
-  /* Landing Page */
-  #landing {
-    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(#151520,#0f0f15);
-    z-index:9999;
-  }
-  .landing-card {
-    text-align:center; padding:30px;
-    background:rgba(255,255,255,0.05);
-    border:2px solid rgba(255,255,255,0.2);
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.6);
-  }
-  #landing h1 { color:var(--yellow); font-size:20px; margin-bottom:12px; }
-  #landing p { color:var(--pink); font-size:14px; margin-bottom:20px; }
-  #landing button {
-    font-family:'Press Start 2P', cursive;
-    background:var(--yellow);
-    color:#111;
-    border:none;
-    padding:12px 16px;
-    border-radius:12px;
-    cursor:pointer;
-  }
-
-  /* ---------- GAME ---------- */
-  #hud{position:fixed; left:16px; top:12px; font-size:12px; opacity:.9; display:none;}
-  #gameWrap{display:none; align-items:center; justify-content:center; height:100vh;}
+  #hud{position:fixed; left:16px; top:12px; font-size:12px; opacity:.9}
+  #gameWrap{display:flex; align-items:center; justify-content:center; height:100vh;}
   canvas{image-rendering:pixelated; background:
     linear-gradient(#87CEEB 60%, #55aa55 60%);
     border:4px solid #222; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,.45);
   }
   .btnTip{position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
-    font-size:11px; opacity:.9; background:rgba(0,0,0,.35); padding:8px 10px; border-radius:8px; display:none;}
+    font-size:11px; opacity:.9; background:rgba(0,0,0,.35); padding:8px 10px; border-radius:8px}
 
-  /* ---------- ENDING ---------- */
-  #ending{position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:24px}
-  .ending-card{
-    width:min(980px, 92vw); max-height:92vh; overflow:auto;
-    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-    border:2px solid rgba(255,255,255,.2);
-    border-radius:22px; padding:28px 22px 30px; text-align:center;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 20px 60px rgba(0,0,0,.45);
-  }
-  .big-title{font-size:22px; letter-spacing:1px; margin:6px 0 12px; color:var(--yellow); text-shadow:0 2px 0 #000}
-  .name{font-size:18px; color:var(--pink); margin:0 0 12px}
-  .wish{font-size:12px; line-height:1.9; margin:0 auto 18px; max-width:720px; color:#f2f2f2}
-
-  .photo-gallery{
-    display:flex; flex-wrap:wrap; justify-content:center;
-    gap:12px; margin-top:10px;
-  }
-  .photo-gallery img{
-    width:170px; max-width:44vw; aspect-ratio:3/4; object-fit:cover;
-    image-rendering:auto; border-radius:14px; border:2px solid rgba(255,255,255,.35);
-    box-shadow:0 8px 24px rgba(0,0,0,.35);
-    opacity:0; transform: translateY(18px) scale(.94);
-    animation: photoIn .9s forwards cubic-bezier(.17,.9,.28,1.15);
-  }
-  @keyframes photoIn{
-    to{opacity:1; transform: translateY(0) scale(1);}
+  /* message box di atas bendera */
+  #flagMessage {
+    position: absolute;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.75);
+    border: 2px solid var(--yellow);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--yellow);
+    text-align: center;
+    white-space: nowrap;
+    display: none;
+    transform: translate(-50%, -120%);
+    pointer-events: none;
   }
 </style>
 </head>
 <body>
 
-<!-- Landing Page -->
-<div id="landing">
-  <div class="landing-card">
-    <h1>🎂 Happy Birthday 🎂</h1>
-    <p>Untuk Baiq Ila Karunia 💖</p>
-    <button id="startBtn">Mulai Game</button>
-  </div>
-</div>
-
-<!-- HUD kecil -->
 <div id="hud">🎂 Baiq Birthday Map — <span id="coins">Coins: 0</span></div>
 
-<!-- Game -->
-<div id="gameWrap">
+<div id="gameWrap" style="position:relative;">
   <canvas id="gameCanvas" width="960" height="540"></canvas>
+  <div id="flagMessage">Kumpulkan semua koin dulu! ✨</div>
 </div>
 <div class="btnTip">Controls: ← → untuk bergerak • Spasi/↑ untuk lompat</div>
-
-<!-- Ending Scene -->
-<div id="ending">
-  <div class="ending-card">
-    <div class="big-title">🎉 Selamat Ulang Tahun 🎉</div>
-    <div class="name">Baiq Ila Karunia</div>
-    <p class="wish">
-      Semoga selalu sehat, dilancarkan semua urusan, dan setiap langkahmu
-      dipenuhi rasa syukur serta kebahagiaan. 💖
-    </p>
-    <div class="photo-gallery" id="gallery">
-      <img src="IMG-20241121-WA0001.jpg" style="animation-delay:.20s">
-      <img src="IMG-20241121-WA0000.jpg" style="animation-delay:.60s">
-      <img src="IMG_20250726_100346.jpg"   style="animation-delay:1.00s">
-      <img src="IMG-20250324-WA0016.jpg"   style="animation-delay:1.40s">
-      <img src="IMG-20250503-WA0005.jpg"   style="animation-delay:1.80s">
-    </div>
-  </div>
-</div>
 
 <script>
 const c = document.getElementById('gameCanvas');
@@ -145,6 +77,7 @@ addEventListener('keyup',e=>{
 
 const GRAV = 0.55, MOVE = 0.9, JUMP = 12.4;
 const player = {x:80, y:H-140, w:28, h:34, vx:0, vy:0, onGround:false, coins:0};
+
 const platforms = [
   {x:0,y:H-80,w:1800,h:80, color:'#55aa55'},
   {x:260,y:H-160,w:80,h:20, color:'#ffc6e5'},
@@ -161,11 +94,13 @@ const coins = [
   {x:740,y:H-240, r:8, got:false},
   {x:1120,y:H-240, r:8, got:false},
 ];
+
 const goal = {x:1540, y:H-160, w:26, h:120};
 
-let camX = 0, running = false;
+let camX = 0, running = true;
 
-function rect(x,y,w,h, color){ ctx.fillStyle=color; ctx.fillRect(x - camX, y, w, h); }
+/* draw flag */
+function rect(x,y,w,h,color){ ctx.fillStyle=color; ctx.fillRect(x - camX, y, w, h); }
 function drawFlag(){
   rect(goal.x, goal.y, goal.w, goal.h, '#444');
   ctx.fillStyle = '#ff6ec7';
@@ -176,65 +111,91 @@ function drawFlag(){
   ctx.closePath(); ctx.fill();
 }
 
-function aabb(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+/* collisions */
+function aabb(a,b){
+  return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+}
 function update(){
   if(keys.left) player.vx -= MOVE;
   if(keys.right) player.vx += MOVE;
   if(keys.up && player.onGround){ player.vy = -JUMP; player.onGround=false; }
   player.vy += GRAV; player.vx *= 0.92;
 
-  player.x += player.vx; for(const p of platforms){ if(aabb(player,p)){ if(player.vx>0)player.x=p.x-player.w; else if(player.vx<0)player.x=p.x+p.w; player.vx=0; } }
-  player.y += player.vy; player.onGround = false;
-  for(const p of platforms){ if(aabb(player,p)){ if(player.vy>0){player.y=p.y-player.h; player.vy=0; player.onGround=true;} else if(player.vy<0){player.y=p.y+p.h; player.vy=0;} } }
-  if(player.y+player.h > H-80){ player.y=H-80-player.h; player.vy=0; player.onGround=true; }
+  player.x += player.vx;
+  for(const p of platforms){
+    if(aabb(player, p)){
+      if(player.vx > 0) player.x = p.x - player.w;
+      else if(player.vx < 0) player.x = p.x + p.w;
+      player.vx = 0;
+    }
+  }
+  player.y += player.vy; player.onGround=false;
+  for(const p of platforms){
+    if(aabb(player, p)){
+      if(player.vy > 0){ player.y = p.y - player.h; player.vy=0; player.onGround=true; }
+      else if(player.vy < 0){ player.y = p.y + p.h; player.vy=0; }
+    }
+  }
+  if(player.y + player.h > H-80){ player.y = H-80 - player.h; player.vy=0; player.onGround=true; }
 
-  for(const c of coins){ if(!c.got){ const dx=player.x+player.w/2-c.x, dy=player.y+player.h/2-c.y; if(dx*dx+dy*dy<(c.r+14)*(c.r+14)){ c.got=true; player.coins++; document.getElementById('coins').textContent='Coins: '+player.coins; }}}
+  for(const c of coins){
+    if(!c.got){
+      const dx = player.x + player.w/2 - c.x;
+      const dy = player.y + player.h/2 - c.y;
+      if(dx*dx + dy*dy < (c.r+14)*(c.r+14)){
+        c.got = true; player.coins++;
+        document.getElementById('coins').textContent = 'Coins: '+player.coins;
+      }
+    }
+  }
+
   camX = Math.max(0, Math.min(player.x - W*0.35, 900));
 
-  // hanya bisa menang kalau semua coin diambil
-  if(aabb(player, goal) && coins.every(c=>c.got)){ win(); }
+  if(aabb(player, goal)){
+    if(player.coins < coins.length){
+      showFlagMessage();
+    }else{
+      win();
+    }
+  }else{
+    hideFlagMessage();
+  }
 }
 
 function render(){
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#ffe066'; ctx.fillRect(40 - camX, 60, 280, 14);
+  ctx.fillStyle='#ffe066';
+  ctx.fillRect(40 - camX, 60, 280, 14);
   ctx.fillStyle='#000'; ctx.font="14px 'Press Start 2P'";
   ctx.fillText("HAPPY BIRTHDAY MAP", 50 - camX, 72);
-
   for(const p of platforms) rect(p.x, p.y, p.w, p.h, p.color);
-  for(const co of coins){ if(co.got) continue; const x=co.x-camX,y=co.y; ctx.fillStyle='#ffde59'; ctx.beginPath(); ctx.arc(x,y,co.r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#b48b00'; ctx.lineWidth=2; ctx.stroke(); }
+  for(const co of coins){
+    if(co.got) continue;
+    const x = co.x - camX, y = co.y;
+    ctx.fillStyle='#ffde59';
+    ctx.beginPath(); ctx.arc(x,y,co.r,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#b48b00'; ctx.lineWidth=2; ctx.stroke();
+  }
   drawFlag();
   rect(player.x, player.y, player.w, player.h, '#ff4d4d');
 }
 
 function loop(){ if(!running) return; update(); render(); requestAnimationFrame(loop); }
-function win(){ running=false; setTimeout(showEnding,400); }
-function showEnding(){
-  document.getElementById('gameWrap').classList.add('hidden');
-  document.querySelector('.btnTip').classList.add('hidden');
-  document.getElementById('ending').style.display='flex';
-  playSong();
-}
+loop();
 
-// ====== Audio ======
-let bgm;
-function playSong(){
-  bgm = new Audio("Sal_Priadi_-_Serta_Mulia__Official_Lyric_Video_(128k).m4a");
-  bgm.currentTime = 40;
-  bgm.play();
-  bgm.addEventListener("timeupdate",()=>{
-    if(bgm.currentTime>=78){ bgm.pause(); bgm.currentTime=78; }
-  });
-}
+/* win state */
+function win(){ running=false; alert("🎉 Selamat! Semua koin terkumpul! 🎉"); }
 
-// ===== Landing =====
-document.getElementById('startBtn').addEventListener('click', ()=>{
-  document.getElementById('landing').style.display='none';
-  document.getElementById('gameWrap').style.display='flex';
-  document.querySelector('.btnTip').style.display='block';
-  document.getElementById('hud').style.display='block';
-  running = true; loop();
-});
+/* pesan di atas bendera */
+function showFlagMessage(){
+  const msg = document.getElementById('flagMessage');
+  msg.style.display = 'block';
+  msg.style.left = (goal.x - camX + goal.w/2) + 'px';
+  msg.style.top  = goal.y + 'px';
+}
+function hideFlagMessage(){
+  document.getElementById('flagMessage').style.display = 'none';
+}
 </script>
 </body>
 </html>
